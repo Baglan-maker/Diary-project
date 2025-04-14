@@ -11,18 +11,32 @@ class MyDiaryApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'My Personal Diary',
+      themeMode: ThemeMode.system,
       theme: ThemeData(
-        primaryColor: Colors.purple,
-        fontFamily: 'Georgia',
-      ),
-      home: DiaryHomePage(),
-    );
+      brightness: Brightness.light,
+      primarySwatch: Colors.deepPurple,
+      fontFamily: 'Georgia',
+     ),
+    darkTheme: ThemeData(
+      brightness: Brightness.dark,
+      primarySwatch: Colors.deepPurple,
+      fontFamily: 'Georgia',
+    ),
+    home: DiaryHomePage(),
+  );
   }
 }
 
-class DiaryHomePage extends StatelessWidget {
-  final List<Map<String, String>> diaryEntries = List.generate(
-    12,
+class DiaryHomePage extends StatefulWidget {
+  const DiaryHomePage({super.key});
+
+  @override
+  State<DiaryHomePage> createState() => _DiaryHomePageState();
+}
+
+class _DiaryHomePageState extends State<DiaryHomePage> {
+  List<Map<String, String>> diaryEntries = List.generate(
+    5,
     (index) => {
       'date': '2025-04-${(index + 1).toString().padLeft(2, '0')}',
       'title': 'Day ${index + 1}',
@@ -30,7 +44,24 @@ class DiaryHomePage extends StatelessWidget {
     },
   );
 
-  DiaryHomePage({super.key});
+  void _addEntry() {
+    final newIndex = diaryEntries.length + 1;
+    setState(() {
+      diaryEntries.add(
+      {
+        'date': '2025-04-${DateTime.now().day.toString().padLeft(2, '0')}',
+        'title': 'New Day $newIndex',
+        'note': 'This is a brand-new diary entry!',
+      },
+    );
+  });
+}
+
+  void _deleteEntry(int index) {
+    setState(() {
+      diaryEntries.removeAt(index);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,7 +137,7 @@ class DiaryHomePage extends StatelessWidget {
                                 TextButton(
                                   child: Text('Delete'),
                                   onPressed: () {
-                                    // Пока не динамично (исправим на следующем шаге)
+                                    _deleteEntry(index);
                                     Navigator.pop(context);
                                   },
                                 ),
@@ -168,9 +199,7 @@ class DiaryHomePage extends StatelessWidget {
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepPurple,
         child: Icon(Icons.add),
-        onPressed: () {
-          // Здесь могла бы быть функция добавления записи
-        },
+        onPressed: _addEntry,
       ),
     );
   }
