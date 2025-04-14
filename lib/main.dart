@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 void main() {
   runApp(MyDiaryApp());
@@ -11,19 +14,34 @@ class MyDiaryApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'My Personal Diary',
-      themeMode: ThemeMode.system,
       theme: ThemeData(
-      brightness: Brightness.light,
-      primarySwatch: Colors.deepPurple,
-      fontFamily: 'Georgia',
-     ),
-    darkTheme: ThemeData(
-      brightness: Brightness.dark,
-      primarySwatch: Colors.deepPurple,
-      fontFamily: 'Georgia',
+        primaryColor: Colors.purple,
+        fontFamily: 'Georgia',
     ),
-    home: DiaryHomePage(),
-  );
+    darkTheme: ThemeData.dark(),
+    themeMode: ThemeMode.system,
+    localizationsDelegates: const [
+      AppLocalizations.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: const [
+      Locale('en'),
+      Locale('ru'),
+      Locale('kk'),
+    ],
+    localeResolutionCallback: (locale, supportedLocales) {
+      if (locale == null) return const Locale('kk');
+      for (var supportedLocale in supportedLocales) {
+        if (supportedLocale.languageCode == locale.languageCode) {
+          return supportedLocale;
+      }
+    }
+    return const Locale('kk');
+  },
+  home: DiaryHomePage(),
+);
   }
 }
 
@@ -35,14 +53,24 @@ class DiaryHomePage extends StatefulWidget {
 }
 
 class _DiaryHomePageState extends State<DiaryHomePage> {
-  List<Map<String, String>> diaryEntries = List.generate(
-    5,
-    (index) => {
-      'date': '2025-04-${(index + 1).toString().padLeft(2, '0')}',
-      'title': 'Day ${index + 1}',
-      'note': 'Today I felt really inspired to write something personal...',
-    },
-  );
+  List<Map<String, String>> diaryEntries = [];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        diaryEntries = List.generate(
+          5,
+          (index) => {
+            'date': '2025-04-${(index + 1).toString().padLeft(2, '0')}',
+            'title': AppLocalizations.of(context)!.dayTitle(index + 1),
+            'note': AppLocalizations.of(context)!.dayNote,
+          },
+        );
+      });
+    });
+  }
 
   void _addEntry() {
     final newIndex = diaryEntries.length + 1;
@@ -51,7 +79,7 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
       {
         'date': '2025-04-${DateTime.now().day.toString().padLeft(2, '0')}',
         'title': 'New Day $newIndex',
-        'note': 'This is a brand-new diary entry!',
+        'note': AppLocalizations.of(context)!.newEntryNote,
       },
     );
   });
@@ -73,6 +101,17 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
         title: Text('My Personal Diary'),
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AboutPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: OrientationBuilder(
         builder: (context, orientation) {
@@ -88,7 +127,7 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Hello, Dreamer ✨\nHere are your recent diary entries:',
+                    AppLocalizations.of(context)!.greeting,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w500,
@@ -126,16 +165,15 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
-                              title: Text('Delete Entry'),
-                              content: Text(
-                                  'Are you sure you want to delete this entry?'),
+                              title: Text(AppLocalizations.of(context)!.deleteEntry),
+                              content: Text(AppLocalizations.of(context)!.confirmDelete),
                               actions: [
                                 TextButton(
-                                  child: Text('Cancel'),
+                                  child: Text(AppLocalizations.of(context)!.cancel),
                                   onPressed: () => Navigator.pop(context),
                                 ),
                                 TextButton(
-                                  child: Text('Delete'),
+                                  child: Text(AppLocalizations.of(context)!.delete),
                                   onPressed: () {
                                     _deleteEntry(index);
                                     Navigator.pop(context);
@@ -163,13 +201,13 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                entry['date']!,
+                                entry['date'] ?? 'Unknown Date',
                                 style:
                                     TextStyle(fontSize: 14, color: Colors.grey),
                               ),
                               SizedBox(height: 6),
                               Text(
-                                entry['title']!,
+                                entry['title'] ?? 'No Title',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
@@ -230,6 +268,66 @@ class DiaryDetailPage extends StatelessWidget {
             Text(
               entry['note'] ?? '',
               style: TextStyle(fontSize: 18),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AboutPage extends StatelessWidget {
+  const AboutPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('About the App'),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.info_outline,
+              size: 80,
+              color: Colors.blue,
+            ),
+            const SizedBox(height: 20),
+            const Text(
+              'Personal Diary - Your Daily Journal',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'This app allows you to record your daily thoughts, track your mood, '
+                  'and organize your personal notes securely.',
+              style: TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            const Divider(),
+            const SizedBox(height: 10),
+            const Text(
+              'Developed by: Dumanuli Darkhan, Keneskhan Magzhan, Tolegenov Baglan, Tuspekova Gulzhan',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 5),
+            const Text(
+              'In the scope of the course “Cross-platform mobile development”\n'
+                  'at Astana IT University.',
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 5),
+            const Text(
+              'Mentor (Teacher): Assistant Professor Abzal Kyzyrkanov',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontStyle: FontStyle.italic),
             ),
           ],
         ),

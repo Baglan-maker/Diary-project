@@ -1,0 +1,12 @@
+{
+  "@@locale": "en",
+  "greeting": "Hello, Dreamer ✨\nHere are your recent diary entries:",
+  "deleteEntry": "Delete Entry",
+  "confirmDelete": "Are you sure you want to delete this entry?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "newEntryNote": "This is a brand-new diary entry!",
+  "newEntryTitle": "New Day {index}",
+  "dayTitle": "Day {index}",
+   "dayNote": "Today I felt really inspired to write something personal..."
+}

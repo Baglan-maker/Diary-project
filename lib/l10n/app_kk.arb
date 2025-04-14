@@ -1,0 +1,21 @@
+{
+  "@@locale": "kk",
+  "greeting": "Сәлем, Армандаушы ✨\nКүнделіктегі соңғы жазбаларыңыз:",
+  "deleteEntry": "Жазбаны жою",
+  "confirmDelete": "Бұл жазбаны жойғыңыз келетініне сенімдісіз бе?",
+  "cancel": "Бас тарту",
+  "delete": "Жою",
+  "newEntryNote": "Бұл күнделікке жаңа жазба!",
+  "newEntryTitle": "Жаңа күн {index}",
+  "dayTitle": "{index}-күн",
+  "@dayTitle": {
+  "description": "Күндердің нөмірімен күнделік атауы",
+  "placeholders": {
+    "index": {
+      "type": "Object"
+    }
+  }
+},
+"dayNote": "Бүгін мен бір нәрсе жазғым келіп, шабыт алдым..."
+  
+}
