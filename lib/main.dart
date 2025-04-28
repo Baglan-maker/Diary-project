@@ -1,10 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
+// Провайдер для управления темой
+class ThemeProvider with ChangeNotifier {
+  bool _isDarkMode = false;
+
+  bool get isDarkMode => _isDarkMode;
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+  }
+}
+
+// Провайдер для управления языком
+class LocaleProvider with ChangeNotifier {
+  Locale _locale = Locale('kk');
+
+  Locale get locale => _locale;
+
+  void setLocale(Locale locale) {
+    if (_locale.languageCode != locale.languageCode) {
+      _locale = locale;
+      notifyListeners();
+    }
+  }
+}
 
 void main() {
-  runApp(MyDiaryApp());
+  runApp(const MyDiaryApp());
 }
 
 class MyDiaryApp extends StatelessWidget {
@@ -12,38 +38,59 @@ class MyDiaryApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'My Personal Diary',
-      theme: ThemeData(
-        primaryColor: Colors.purple,
-        fontFamily: 'Georgia',
-    ),
-    darkTheme: ThemeData.dark(),
-    themeMode: ThemeMode.system,
-    localizationsDelegates: const [
-      AppLocalizations.delegate,
-      GlobalMaterialLocalizations.delegate,
-      GlobalWidgetsLocalizations.delegate,
-      GlobalCupertinoLocalizations.delegate,
-    ],
-    supportedLocales: const [
-      Locale('en'),
-      Locale('ru'),
-      Locale('kk'),
-    ],
-    localeResolutionCallback: (locale, supportedLocales) {
-      if (locale == null) return const Locale('kk');
-      for (var supportedLocale in supportedLocales) {
-        if (supportedLocale.languageCode == locale.languageCode) {
-          return supportedLocale;
-      }
-    }
-    return const Locale('kk');
-  },
-  home: DiaryHomePage(),
-);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
+      ],
+      child: Builder(
+        builder: (context) {
+          final themeProvider = Provider.of<ThemeProvider>(context);
+          final localeProvider = Provider.of<LocaleProvider>(context);
+
+          return MaterialApp(
+            title: 'My Personal Diary',
+            theme: ThemeData(
+              primaryColor: Colors.purple,
+              fontFamily: 'Georgia',
+            ),
+            darkTheme: ThemeData.dark(),
+            themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'),
+              Locale('ru'),
+              Locale('kk'),
+            ],
+            localeResolutionCallback: (locale, supportedLocales) {
+              if (locale == null) return const Locale('kk');
+              for (var supportedLocale in supportedLocales) {
+                if (supportedLocale.languageCode == locale.languageCode) {
+                  return supportedLocale;
+                }
+              }
+              return const Locale('kk');
+            },
+            locale: localeProvider.locale,
+            initialRoute: '/',
+            routes: {
+              '/': (context) => const DiaryHomePage(),
+              '/about': (context) => const AboutPage(),
+              '/settings': (context) => const SettingsPage(),
+            },
+          );
+        },
+      ),
+    );
   }
 }
+
+
 
 class DiaryHomePage extends StatefulWidget {
   const DiaryHomePage({super.key});
@@ -91,28 +138,65 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final orientation = MediaQuery.of(context).orientation;
-    final screenWidth = MediaQuery.of(context).size.width;
+ @override
+Widget build(BuildContext context) {
+  final orientation = MediaQuery.of(context).orientation;
+  final screenWidth = MediaQuery.of(context).size.width;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('My Personal Diary'),
-        backgroundColor: Colors.deepPurple,
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.info_outline),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AboutPage()),
-              );
+  return Scaffold(
+    appBar: AppBar(
+      title: Text('My Personal Diary'),
+      backgroundColor: Colors.deepPurple,
+      centerTitle: true,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.info_outline),
+          onPressed: () {
+            Navigator.pushNamed(context, '/about');
+          },
+        ),
+      ],
+    ),
+    drawer: Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.deepPurple,
+            ),
+            child: Text(
+              AppLocalizations.of(context)!.greetingDrawer,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: Icon(Icons.home),
+            title: Text(AppLocalizations.of(context)!.home),
+            onTap: () {
+              Navigator.pushNamed(context, '/');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.settings),
+            title: Text(AppLocalizations.of(context)!.settings),
+            onTap: () {
+              Navigator.pushNamed(context, '/settings');
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.info),
+            title: Text(AppLocalizations.of(context)!.about),
+            onTap: () {
+              Navigator.pushNamed(context, '/about');
             },
           ),
         ],
       ),
+    ),
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Padding(
@@ -298,25 +382,27 @@ class AboutPage extends StatelessWidget {
               color: Colors.blue,
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Personal Diary - Your Daily Journal',
+            Text(
+               AppLocalizations.of(context)!.aboutAppTitle,
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
+
             const SizedBox(height: 10),
-            const Text(
-              'This app allows you to record your daily thoughts, track your mood, '
-                  'and organize your personal notes securely.',
+            Text(
+              AppLocalizations.of(context)!.aboutAppDescription,
               style: TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
+
             const SizedBox(height: 20),
             const Divider(),
             const SizedBox(height: 10),
-            const Text(
-              'Developed by: Dumanuli Darkhan, Keneskhan Magzhan, Tolegenov Baglan, Tuspekova Gulzhan',
+            Text(
+              AppLocalizations.of(context)!.aboutAppDevelopers,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
+
             const SizedBox(height: 5),
             const Text(
               'In the scope of the course “Cross-platform mobile development”\n'
@@ -324,10 +410,9 @@ class AboutPage extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 5),
-            const Text(
-              'Mentor (Teacher): Assistant Professor Abzal Kyzyrkanov',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontStyle: FontStyle.italic),
+            Text(
+              AppLocalizations.of(context)!.aboutAppCourseInfo,
+             textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -335,3 +420,81 @@ class AboutPage extends StatelessWidget {
     );
   }
 }
+
+class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
+  @override
+  State<SettingsPage> createState() => _SettingsPageState();
+}
+
+class _SettingsPageState extends State<SettingsPage> {
+  @override
+  Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final localeProvider = Provider.of<LocaleProvider>(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.settings),
+        centerTitle: true,
+        backgroundColor: Colors.deepPurple,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            SwitchListTile(
+              title: Text(AppLocalizations.of(context)!.darkMode),
+              value: themeProvider.isDarkMode,
+              onChanged: (bool value) {
+                themeProvider.toggleTheme();
+              },
+              secondary: Icon(Icons.dark_mode),
+            ),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: Icon(Icons.language),
+              title: Text(AppLocalizations.of(context)!.changeLanguage),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(AppLocalizations.of(context)!.changeLanguage),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ListTile(
+                          title: Text('English'),
+                          onTap: () {
+                            localeProvider.setLocale(Locale('en'));
+                            Navigator.pop(context);
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Русский'),
+                          onTap: () {
+                            localeProvider.setLocale(Locale('ru'));
+                            Navigator.pop(context);
+                          },
+                        ),
+                        ListTile(
+                          title: Text('Қазақша'),
+                          onTap: () {
+                            localeProvider.setLocale(Locale('kk'));
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

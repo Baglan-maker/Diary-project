@@ -1,6 +1,7 @@
 {
   "@@locale": "en",
   "greeting": "Hello, Dreamer ✨\nHere are your recent diary entries:",
+  "greetingDrawer": "Hello, Dreamer ✨",
   "deleteEntry": "Delete Entry",
   "confirmDelete": "Are you sure you want to delete this entry?",
   "cancel": "Cancel",
@@ -8,5 +9,16 @@
   "newEntryNote": "This is a brand-new diary entry!",
   "newEntryTitle": "New Day {index}",
   "dayTitle": "Day {index}",
-   "dayNote": "Today I felt really inspired to write something personal..."
+   "dayNote": "Today I felt really inspired to write something personal...",
+   "home": "Home",
+  "settings": "Settings",
+  "about": "About",
+  "darkMode": "Dark Mode",
+  "changeLanguage": "Change Language",
+  "comingSoon": "Coming soon!",
+  "ok": "OK",
+  "aboutAppTitle": "Personal Diary - Your Daily Journal",
+  "aboutAppDescription": "This app allows you to record your daily thoughts, track your mood, and organize your personal notes securely.",
+  "aboutAppDevelopers": "Developed by: Dumanuli Darkhan, Keneskhan Magzhan, Tolegenov Baglan, Tuspekova Gulzhan",
+  "aboutAppCourseInfo": "In the scope of the course “Cross-platform mobile development” at Astana IT University."
 }
