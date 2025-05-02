@@ -3,7 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
-// Провайдер для управления темой
+// Провайдер для управления Темой
 class ThemeProvider with ChangeNotifier {
   bool _isDarkMode = false;
 
