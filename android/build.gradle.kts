@@ -4,6 +4,19 @@ allprojects {
         mavenCentral()
     }
 }
+<<<<<<< HEAD
+=======
+buildscript {
+    dependencies {
+        classpath("com.google.gms:google-services:4.3.15")
+    }
+}
+plugins {
+    // другие плагины
+    id("com.android.application") version "8.7.0" apply false
+    id("com.google.gms.google-services") version "4.3.15" apply false
+}
+>>>>>>> da6064d (Initial commit of Diary project)
 
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.value(newBuildDir)

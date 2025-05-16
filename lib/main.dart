@@ -1,8 +1,21 @@
+<<<<<<< HEAD
+=======
+import 'package:firebase_core/firebase_core.dart';
+>>>>>>> da6064d (Initial commit of Diary project)
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
+<<<<<<< HEAD
 
+=======
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'auth_service.dart';
+import 'login_page.dart';
+import 'register_page.dart';
+>>>>>>> da6064d (Initial commit of Diary project)
 // Провайдер для управления Темой
 class ThemeProvider with ChangeNotifier {
   bool _isDarkMode = false;
@@ -28,14 +41,24 @@ class LocaleProvider with ChangeNotifier {
     }
   }
 }
+<<<<<<< HEAD
 
 void main() {
+=======
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+>>>>>>> da6064d (Initial commit of Diary project)
   runApp(const MyDiaryApp());
 }
 
 class MyDiaryApp extends StatelessWidget {
   const MyDiaryApp({super.key});
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> da6064d (Initial commit of Diary project)
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -82,6 +105,11 @@ class MyDiaryApp extends StatelessWidget {
               '/': (context) => const DiaryHomePage(),
               '/about': (context) => const AboutPage(),
               '/settings': (context) => const SettingsPage(),
+<<<<<<< HEAD
+=======
+              '/login': (context) => LoginPage(),
+              '/register': (context) => RegisterPage(),
+>>>>>>> da6064d (Initial commit of Diary project)
             },
           );
         },
@@ -109,7 +137,11 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
       setState(() {
         diaryEntries = List.generate(
           5,
+<<<<<<< HEAD
           (index) => {
+=======
+              (index) => {
+>>>>>>> da6064d (Initial commit of Diary project)
             'date': '2025-04-${(index + 1).toString().padLeft(2, '0')}',
             'title': AppLocalizations.of(context)!.dayTitle(index + 1),
             'note': AppLocalizations.of(context)!.dayNote,
@@ -123,6 +155,7 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
     final newIndex = diaryEntries.length + 1;
     setState(() {
       diaryEntries.add(
+<<<<<<< HEAD
       {
         'date': '2025-04-${DateTime.now().day.toString().padLeft(2, '0')}',
         'title': 'New Day $newIndex',
@@ -131,6 +164,16 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
     );
   });
 }
+=======
+        {
+          'date': '2025-04-${DateTime.now().day.toString().padLeft(2, '0')}',
+          'title': 'New Day $newIndex',
+          'note': AppLocalizations.of(context)!.newEntryNote,
+        },
+      );
+    });
+  }
+>>>>>>> da6064d (Initial commit of Diary project)
 
   void _deleteEntry(int index) {
     setState(() {
@@ -138,6 +181,7 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
     });
   }
 
+<<<<<<< HEAD
  @override
 Widget build(BuildContext context) {
   final orientation = MediaQuery.of(context).orientation;
@@ -191,12 +235,95 @@ Widget build(BuildContext context) {
             leading: Icon(Icons.info),
             title: Text(AppLocalizations.of(context)!.about),
             onTap: () {
+=======
+  @override
+  Widget build(BuildContext context) {
+    final orientation = MediaQuery.of(context).orientation;
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('My Personal Diary'),
+        backgroundColor: Colors.deepPurple,
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.info_outline),
+            onPressed: () {
+>>>>>>> da6064d (Initial commit of Diary project)
               Navigator.pushNamed(context, '/about');
             },
           ),
         ],
       ),
+<<<<<<< HEAD
     ),
+=======
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.deepPurple,
+              ),
+              child: Text(
+                AppLocalizations.of(context)!.greetingDrawer,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.home),
+              title: Text(AppLocalizations.of(context)!.home),
+              onTap: () {
+                Navigator.pushNamed(context, '/');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.settings),
+              title: Text(AppLocalizations.of(context)!.settings),
+              onTap: () {
+                Navigator.pushNamed(context, '/settings');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.info),
+              title: Text(AppLocalizations.of(context)!.about),
+              onTap: () {
+                Navigator.pushNamed(context, '/about');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.login),
+              title: Text(AppLocalizations.of(context)!.login),
+              onTap: () {
+                Navigator.pushNamed(context, '/login');
+              },
+            ),
+            Divider(),
+            FirebaseAuth.instance.currentUser == null
+                ? ListTile(
+              leading: Icon(Icons.login),
+              title: Text('Login'),
+              onTap: () {
+                Navigator.pushNamed(context, '/login');
+              },
+            )
+                : ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () async {
+                await AuthService().signOut();
+                Navigator.pushReplacementNamed(context, '/');
+              },
+            ),
+          ],
+        ),
+      ),
+>>>>>>> da6064d (Initial commit of Diary project)
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Padding(
@@ -287,7 +414,11 @@ Widget build(BuildContext context) {
                               Text(
                                 entry['date'] ?? 'Unknown Date',
                                 style:
+<<<<<<< HEAD
                                     TextStyle(fontSize: 14, color: Colors.grey),
+=======
+                                TextStyle(fontSize: 14, color: Colors.grey),
+>>>>>>> da6064d (Initial commit of Diary project)
                               ),
                               SizedBox(height: 6),
                               Text(
@@ -383,7 +514,11 @@ class AboutPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
+<<<<<<< HEAD
                AppLocalizations.of(context)!.aboutAppTitle,
+=======
+              AppLocalizations.of(context)!.aboutAppTitle,
+>>>>>>> da6064d (Initial commit of Diary project)
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -412,7 +547,11 @@ class AboutPage extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               AppLocalizations.of(context)!.aboutAppCourseInfo,
+<<<<<<< HEAD
              textAlign: TextAlign.center,
+=======
+              textAlign: TextAlign.center,
+>>>>>>> da6064d (Initial commit of Diary project)
             ),
           ],
         ),
@@ -496,5 +635,9 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
+<<<<<<< HEAD
 }
 
+=======
+}
+>>>>>>> da6064d (Initial commit of Diary project)
