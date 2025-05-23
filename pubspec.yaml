@@ -28,18 +28,16 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-<<<<<<< HEAD
-=======
   firebase_core: ^2.25.4
   firebase_auth: ^4.17.4
   cloud_firestore: ^4.15.4
->>>>>>> da6064d (Initial commit of Diary project)
   flutter:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
   intl: ^0.19.0
   provider: ^6.0.1
+  shared_preferences: ^2.2.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

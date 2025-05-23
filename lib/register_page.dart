@@ -24,24 +24,61 @@ class _RegisterPageState extends State<RegisterPage> {
 
   void _registerUser() async {
     final loc = AppLocalizations.of(context)!;
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.enterEmailPassword)),
+      );
+      return;
+    }
+
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(loc.weakPassword)),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
-    final authService = AuthService();
-    final user = await authService.register(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    try {
+      final authService = AuthService();
+      final user = await authService.register(email, password);
 
-    setState(() => _isLoading = false);
-
-    if (user != null) {
-      if (mounted) {
-        Navigator.pushReplacementNamed(context, '/');
+      if (user != null) {
+        if (mounted) {
+          Navigator.pushReplacementNamed(context, '/');
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(loc.registrationFailed)),
+        );
       }
-    } else {
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'email-already-in-use':
+          message = loc.emailAlreadyInUse;
+          break;
+        case 'invalid-email':
+          message = loc.invalidEmail;
+          break;
+        case 'weak-password':
+          message = loc.weakPassword;
+          break;
+        default:
+          message = loc.registrationFailed;
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(loc.registrationFailed)),
+        SnackBar(content: Text(message)),
       );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -90,7 +127,9 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 16),
               TextButton(
-                onPressed: () {
+                onPressed: _isLoading
+                    ? null
+                    : () {
                   Navigator.pushReplacementNamed(context, '/login');
                 },
                 child: Text(loc.alreadyHaveAccount),

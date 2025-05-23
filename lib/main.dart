@@ -1,64 +1,147 @@
-<<<<<<< HEAD
-=======
 import 'package:firebase_core/firebase_core.dart';
->>>>>>> da6064d (Initial commit of Diary project)
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-<<<<<<< HEAD
-
-=======
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'auth_service.dart';
 import 'login_page.dart';
 import 'register_page.dart';
->>>>>>> da6064d (Initial commit of Diary project)
+import 'package:shared_preferences/shared_preferences.dart';
 // Провайдер для управления Темой
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class ThemeProvider with ChangeNotifier {
-  bool _isDarkMode = false;
+  ThemeMode _themeMode = ThemeMode.light;
 
-  bool get isDarkMode => _isDarkMode;
+  ThemeMode get themeMode => _themeMode;
 
-  void toggleTheme() {
-    _isDarkMode = !_isDarkMode;
+  ThemeProvider() {
+    _loadTheme();
+  }
+
+  bool get isDarkMode => _themeMode == ThemeMode.dark;
+
+  Future<void> toggleTheme() async {
+    _themeMode = isDarkMode ? ThemeMode.light : ThemeMode.dark;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', isDarkMode);
+
+    await _saveThemeToFirestore();
+  }
+
+  Future<void> setTheme(String theme) async {
+    _themeMode = theme == 'dark' ? ThemeMode.dark : ThemeMode.light;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', isDarkMode);
+
+    await _saveThemeToFirestore();
+  }
+
+  Future<void> _loadTheme() async {
+    final prefs = await SharedPreferences.getInstance();
+    final isDark = prefs.getBool('isDarkMode') ?? false;
+    _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
     notifyListeners();
   }
+
+  Future<void> _saveThemeToFirestore() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'theme': currentThemeString,
+        }, SetOptions(merge: true));
+      } catch (e) {
+        print('Ошибка при сохранении темы в Firestore: $e');
+      }
+    }
+  }
+
+  Future<void> resetToDefault() async {
+    _themeMode = ThemeMode.light;
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', false);
+  }
+
+
+  String get currentThemeString => _themeMode == ThemeMode.dark ? 'dark' : 'light';
 }
 
-// Провайдер для управления языком
 class LocaleProvider with ChangeNotifier {
-  Locale _locale = Locale('kk');
+  Locale _locale = const Locale('en'); // Язык по умолчанию
 
   Locale get locale => _locale;
 
-  void setLocale(Locale locale) {
+  LocaleProvider() {
+    _loadLocale();
+  }
+
+  Future<void> setLocale(Locale locale) async {
     if (_locale.languageCode != locale.languageCode) {
       _locale = locale;
       notifyListeners();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('locale', locale.languageCode);
+
+      await _saveLocaleToFirestore();
     }
   }
-}
-<<<<<<< HEAD
 
-void main() {
-=======
+  Future<void> _loadLocale() async {
+    final prefs = await SharedPreferences.getInstance();
+    final code = prefs.getString('locale');
+    if (code != null) {
+      _locale = Locale(code);
+      notifyListeners();
+    }
+  }
+
+  Future<void> _saveLocaleToFirestore() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+          'language': _locale.languageCode,
+        }, SetOptions(merge: true));
+      } catch (e) {
+        print('Ошибка при сохранении язлыка в Firestore: $e');
+      }
+    }
+  }
+
+  Future<void> resetToDefault() async {
+    _locale = const Locale('en');
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('locale', 'en');
+  }
+
+  String get currentLocaleCode => _locale.languageCode;
+
+
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
->>>>>>> da6064d (Initial commit of Diary project)
   runApp(const MyDiaryApp());
 }
 
 class MyDiaryApp extends StatelessWidget {
   const MyDiaryApp({super.key});
 
-<<<<<<< HEAD
-=======
 
->>>>>>> da6064d (Initial commit of Diary project)
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -91,13 +174,13 @@ class MyDiaryApp extends StatelessWidget {
               Locale('kk'),
             ],
             localeResolutionCallback: (locale, supportedLocales) {
-              if (locale == null) return const Locale('kk');
+              if (locale == null) return const Locale('en');
               for (var supportedLocale in supportedLocales) {
                 if (supportedLocale.languageCode == locale.languageCode) {
                   return supportedLocale;
                 }
               }
-              return const Locale('kk');
+              return const Locale('en');
             },
             locale: localeProvider.locale,
             initialRoute: '/',
@@ -105,11 +188,8 @@ class MyDiaryApp extends StatelessWidget {
               '/': (context) => const DiaryHomePage(),
               '/about': (context) => const AboutPage(),
               '/settings': (context) => const SettingsPage(),
-<<<<<<< HEAD
-=======
               '/login': (context) => LoginPage(),
               '/register': (context) => RegisterPage(),
->>>>>>> da6064d (Initial commit of Diary project)
             },
           );
         },
@@ -137,11 +217,7 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
       setState(() {
         diaryEntries = List.generate(
           5,
-<<<<<<< HEAD
-          (index) => {
-=======
               (index) => {
->>>>>>> da6064d (Initial commit of Diary project)
             'date': '2025-04-${(index + 1).toString().padLeft(2, '0')}',
             'title': AppLocalizations.of(context)!.dayTitle(index + 1),
             'note': AppLocalizations.of(context)!.dayNote,
@@ -155,16 +231,6 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
     final newIndex = diaryEntries.length + 1;
     setState(() {
       diaryEntries.add(
-<<<<<<< HEAD
-      {
-        'date': '2025-04-${DateTime.now().day.toString().padLeft(2, '0')}',
-        'title': 'New Day $newIndex',
-        'note': AppLocalizations.of(context)!.newEntryNote,
-      },
-    );
-  });
-}
-=======
         {
           'date': '2025-04-${DateTime.now().day.toString().padLeft(2, '0')}',
           'title': 'New Day $newIndex',
@@ -173,7 +239,6 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
       );
     });
   }
->>>>>>> da6064d (Initial commit of Diary project)
 
   void _deleteEntry(int index) {
     setState(() {
@@ -181,61 +246,6 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
     });
   }
 
-<<<<<<< HEAD
- @override
-Widget build(BuildContext context) {
-  final orientation = MediaQuery.of(context).orientation;
-  final screenWidth = MediaQuery.of(context).size.width;
-
-  return Scaffold(
-    appBar: AppBar(
-      title: Text('My Personal Diary'),
-      backgroundColor: Colors.deepPurple,
-      centerTitle: true,
-      actions: [
-        IconButton(
-          icon: Icon(Icons.info_outline),
-          onPressed: () {
-            Navigator.pushNamed(context, '/about');
-          },
-        ),
-      ],
-    ),
-    drawer: Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.deepPurple,
-            ),
-            child: Text(
-              AppLocalizations.of(context)!.greetingDrawer,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.home),
-            title: Text(AppLocalizations.of(context)!.home),
-            onTap: () {
-              Navigator.pushNamed(context, '/');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.settings),
-            title: Text(AppLocalizations.of(context)!.settings),
-            onTap: () {
-              Navigator.pushNamed(context, '/settings');
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.info),
-            title: Text(AppLocalizations.of(context)!.about),
-            onTap: () {
-=======
   @override
   Widget build(BuildContext context) {
     final orientation = MediaQuery.of(context).orientation;
@@ -250,15 +260,11 @@ Widget build(BuildContext context) {
           IconButton(
             icon: Icon(Icons.info_outline),
             onPressed: () {
->>>>>>> da6064d (Initial commit of Diary project)
               Navigator.pushNamed(context, '/about');
             },
           ),
         ],
       ),
-<<<<<<< HEAD
-    ),
-=======
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -267,14 +273,38 @@ Widget build(BuildContext context) {
               decoration: BoxDecoration(
                 color: Colors.deepPurple,
               ),
-              child: Text(
-                AppLocalizations.of(context)!.greetingDrawer,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.greetingDrawer,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  FirebaseAuth.instance.currentUser != null
+                      ? Text(
+                    FirebaseAuth.instance.currentUser!.email ?? '',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  )
+                      : Text(
+                    AppLocalizations.of(context)!.guest,
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
             ),
+
+            // Home доступен всем
             ListTile(
               leading: Icon(Icons.home),
               title: Text(AppLocalizations.of(context)!.home),
@@ -282,13 +312,23 @@ Widget build(BuildContext context) {
                 Navigator.pushNamed(context, '/');
               },
             ),
+
+            // Settings - только для авторизованных пользователей
             ListTile(
               leading: Icon(Icons.settings),
               title: Text(AppLocalizations.of(context)!.settings),
               onTap: () {
-                Navigator.pushNamed(context, '/settings');
+                if (FirebaseAuth.instance.currentUser != null) {
+                  Navigator.pushNamed(context, '/settings');
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(AppLocalizations.of(context)!.pleaseLoginToAccess),
+                  ));
+                }
               },
             ),
+
+            // About доступен всем
             ListTile(
               leading: Icon(Icons.info),
               title: Text(AppLocalizations.of(context)!.about),
@@ -296,34 +336,32 @@ Widget build(BuildContext context) {
                 Navigator.pushNamed(context, '/about');
               },
             ),
-            ListTile(
-              leading: Icon(Icons.login),
-              title: Text(AppLocalizations.of(context)!.login),
-              onTap: () {
-                Navigator.pushNamed(context, '/login');
-              },
-            ),
+
             Divider(),
+
+            // Login / Logout
             FirebaseAuth.instance.currentUser == null
                 ? ListTile(
               leading: Icon(Icons.login),
-              title: Text('Login'),
+              title: Text(AppLocalizations.of(context)!.login),
               onTap: () {
                 Navigator.pushNamed(context, '/login');
               },
             )
                 : ListTile(
               leading: Icon(Icons.logout),
-              title: Text('Logout'),
+              title: Text(AppLocalizations.of(context)!.logout),
               onTap: () async {
                 await AuthService().signOut();
-                Navigator.pushReplacementNamed(context, '/');
+                await context.read<ThemeProvider>().resetToDefault();
+                await context.read<LocaleProvider>().resetToDefault();
+                Navigator.pushReplacementNamed(context, '/login');
               },
             ),
           ],
         ),
       ),
->>>>>>> da6064d (Initial commit of Diary project)
+
       body: OrientationBuilder(
         builder: (context, orientation) {
           return Padding(
@@ -414,11 +452,7 @@ Widget build(BuildContext context) {
                               Text(
                                 entry['date'] ?? 'Unknown Date',
                                 style:
-<<<<<<< HEAD
-                                    TextStyle(fontSize: 14, color: Colors.grey),
-=======
                                 TextStyle(fontSize: 14, color: Colors.grey),
->>>>>>> da6064d (Initial commit of Diary project)
                               ),
                               SizedBox(height: 6),
                               Text(
@@ -514,11 +548,7 @@ class AboutPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-<<<<<<< HEAD
-               AppLocalizations.of(context)!.aboutAppTitle,
-=======
               AppLocalizations.of(context)!.aboutAppTitle,
->>>>>>> da6064d (Initial commit of Diary project)
               style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               textAlign: TextAlign.center,
             ),
@@ -547,11 +577,7 @@ class AboutPage extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               AppLocalizations.of(context)!.aboutAppCourseInfo,
-<<<<<<< HEAD
-             textAlign: TextAlign.center,
-=======
               textAlign: TextAlign.center,
->>>>>>> da6064d (Initial commit of Diary project)
             ),
           ],
         ),
@@ -570,6 +596,22 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(AppLocalizations.of(context)!.settings),
+          centerTitle: true,
+          backgroundColor: Colors.deepPurple,
+        ),
+        body: Center(
+          child: Text(AppLocalizations.of(context)!.pleaseLoginToAccess),
+        ),
+      );
+    }
+
+    // Если пользователь авторизован — отображаем настройки
     final themeProvider = Provider.of<ThemeProvider>(context);
     final localeProvider = Provider.of<LocaleProvider>(context);
 
@@ -596,38 +638,7 @@ class _SettingsPageState extends State<SettingsPage> {
               leading: Icon(Icons.language),
               title: Text(AppLocalizations.of(context)!.changeLanguage),
               onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: Text(AppLocalizations.of(context)!.changeLanguage),
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ListTile(
-                          title: Text('English'),
-                          onTap: () {
-                            localeProvider.setLocale(Locale('en'));
-                            Navigator.pop(context);
-                          },
-                        ),
-                        ListTile(
-                          title: Text('Русский'),
-                          onTap: () {
-                            localeProvider.setLocale(Locale('ru'));
-                            Navigator.pop(context);
-                          },
-                        ),
-                        ListTile(
-                          title: Text('Қазақша'),
-                          onTap: () {
-                            localeProvider.setLocale(Locale('kk'));
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                _showLanguageDialog(context, localeProvider);
               },
             ),
           ],
@@ -635,9 +646,35 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
     );
   }
-<<<<<<< HEAD
-}
+  void _showLanguageDialog(BuildContext context, LocaleProvider localeProvider) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(AppLocalizations.of(context)!.changeLanguage),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text('English'),
+                onTap: () {
+                  localeProvider.setLocale(Locale('en'));
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                title: Text('Русский'),
+                onTap: () {
+                  localeProvider.setLocale(Locale('ru'));
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
-=======
+
 }
->>>>>>> da6064d (Initial commit of Diary project)

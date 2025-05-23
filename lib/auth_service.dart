@@ -17,7 +17,8 @@ class AuthService {
           'email': email,
           'uid': result.user!.uid,
           'createdAt': FieldValue.serverTimestamp(),
-
+          'theme': 'light',
+          'language': 'ru',
         });
         print("Сохраняем в Firestore: ${result.user!.uid}");
 
@@ -40,6 +41,20 @@ class AuthService {
       return result.user;
     } catch (e) {
       print(e);
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getUserSettings(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      if (doc.exists) {
+        return doc.data();
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Ошибка при получении настроек: $e");
       return null;
     }
   }

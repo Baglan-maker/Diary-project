@@ -1,13 +1,10 @@
 {
-<<<<<<< HEAD
-=======
 
   "login": "Login",
   "register": "Register",
   "email": "Email",
   "password": "Password",
   "noAccountRegister": "Don't have an account? Register",
->>>>>>> da6064d (Initial commit of Diary project)
   "@@locale": "en",
   "greeting": "Hello, Dreamer ✨\nHere are your recent diary entries:",
   "greetingDrawer": "Hello, Dreamer ✨",
@@ -26,20 +23,24 @@
   "changeLanguage": "Change Language",
   "comingSoon": "Coming soon!",
   "ok": "OK",
-<<<<<<< HEAD
-=======
   "emailAlreadyInUse": "Email is already in use",
   "invalidEmail": "Invalid email address",
   "weakPassword": "Password is too weak",
   "registrationFailed": "Registration failed",
   "userNotFound": "User not found",
+  "guest": "Guest",
   "wrongPassword": "Incorrect password",
   "loginFailed": "Login failed",
   "registrationFailed": "Registration failed. Please try again.",
   "alreadyHaveAccount": "Already have an account? Log in",
->>>>>>> da6064d (Initial commit of Diary project)
   "aboutAppTitle": "Personal Diary - Your Daily Journal",
   "aboutAppDescription": "This app allows you to record your daily thoughts, track your mood, and organize your personal notes securely.",
   "aboutAppDevelopers": "Developed by: Dumanuli Darkhan, Keneskhan Magzhan, Tolegenov Baglan, Tuspekova Gulzhan",
-  "aboutAppCourseInfo": "In the scope of the course “Cross-platform mobile development” at Astana IT University."
+  "aboutAppCourseInfo": "In the scope of the course “Cross-platform mobile development” at Astana IT University.",
+  "logout": "Logout",
+  "enterEmailPassword": "Please enter email and password",
+  "pleaseLoginToAccess": "Please log in to access this feature"
+
+
+
 }

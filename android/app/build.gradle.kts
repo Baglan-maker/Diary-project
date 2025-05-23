@@ -3,20 +3,13 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-<<<<<<< HEAD
-=======
     id("com.google.gms.google-services")
->>>>>>> da6064d (Initial commit of Diary project)
 }
 
 android {
     namespace = "com.example.cross2"
     compileSdk = flutter.compileSdkVersion
-<<<<<<< HEAD
-    ndkVersion = flutter.ndkVersion
-=======
     ndkVersion = "27.0.12077973"
->>>>>>> da6064d (Initial commit of Diary project)
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -29,11 +22,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-<<<<<<< HEAD
-        applicationId = "com.example.cross2"
-=======
         applicationId = "com.example.mydiary"
->>>>>>> da6064d (Initial commit of Diary project)
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
