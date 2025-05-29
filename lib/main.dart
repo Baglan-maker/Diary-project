@@ -314,19 +314,13 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
             ),
 
             // Settings - только для авторизованных пользователей
-            ListTile(
-              leading: Icon(Icons.settings),
-              title: Text(AppLocalizations.of(context)!.settings),
-              onTap: () {
-                if (FirebaseAuth.instance.currentUser != null) {
-                  Navigator.pushNamed(context, '/settings');
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(AppLocalizations.of(context)!.pleaseLoginToAccess),
-                  ));
-                }
-              },
-            ),
+        if (FirebaseAuth.instance.currentUser != null)
+        ListTile(
+          leading: Icon(Icons.settings),
+          title: Text(AppLocalizations.of(context)!.settings),
+            onTap: () {
+            Navigator.pushNamed(context, '/settings');
+      }),
 
             // About доступен всем
             ListTile(
@@ -467,7 +461,10 @@ class _DiaryHomePageState extends State<DiaryHomePage> {
                               Expanded(
                                 child: Text(
                                   entry['note']!,
-                                  style: TextStyle(fontSize: 14),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black,
+                                  ),
                                   overflow: TextOverflow.fade,
                                 ),
                               ),
